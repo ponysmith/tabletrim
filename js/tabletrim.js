@@ -28,6 +28,8 @@
         // CSS classes
         var _classes = { 
             table: 'tabletrim',
+            rtl: 'tabletrim-rtl',
+            ltr: 'tabletrim-ltr',
             select: 'tabletrim-select', 
             option: 'tabletrim-option',
             trimmed: 'tabletrim-trimmed',
@@ -77,7 +79,7 @@
              */
             build: function() {
                 // Create an empty select box
-                _elements.select = $('<select name="' + _classes.select + '"></select');
+                _elements.select = $('<select class="' + _classes.select + '"></select');
                 // Loop all columns based on headers
                 _elements.table.find('thead th').each(function() {
                     // Build the columns array (1-indexed)
@@ -137,7 +139,7 @@
              */
             untrim: function() {
                 // Remove the table CSS class
-                _elements.table.removeClass(_classes.trimmed);
+                _elements.table.removeClass(_classes.trimmed + ' ' + _classes.rtl + ' ' + _classes.ltr);
                 // Deactivate the active column
                 _private.deactivate();
                 // Set the trimmmed flag
@@ -156,8 +158,8 @@
                 } else {
                     // Set the table direction depending on if the active column is before or after the sticky column
                     (i > _options.sticky) 
-                        ? _elements.table.removeClass('tabletrim-rtl').addClass('tabletrim-ltr') 
-                        : _elements.table.removeClass('tabletrim-ltr').addClass('tabletrim-rtl');
+                        ? _elements.table.removeClass(_classes.rtl).addClass(_classes.ltr) 
+                        : _elements.table.removeClass(_classes.ltr).addClass(_classes.rtl);
                     // Update the active index
                     _data.activeindex = i;
                     // Add the controls
@@ -215,7 +217,7 @@
              * Manually untrim the table
              */
             untrim: function() {
-                _private.untrim(i);
+                _private.untrim();
             },
 
         }
