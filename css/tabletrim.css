@@ -3,8 +3,11 @@
  * Alter at your own risk
  */
 .tabletrim-ltr { direction: ltr; }
-.tabletrim-ltr { direction: rtl; }
+.tabletrim-rtl { direction: rtl; }
 .tabletrim-trimmed td, .tabletrim-trimmed th { display: none; }
-.tabletrim-trimmed td.tabletrim-active, .tabletrim-trimmed th.tabletrim-active { display: table-cell; }
+.tabletrim-trimmed th.tabletrim-active,
+.tabletrim-trimmed td.tabletrim-active, 
+.tabletrim-trimmed th.tabletrim-sticky,
+.tabletrim-trimmed td.tabletrim-sticky { display: table-cell; }
 
 

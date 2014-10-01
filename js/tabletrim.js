@@ -23,7 +23,7 @@
             sticky: 1, // Column which should always be displayed (starting at 1)
             init: 2, // Initial column to show when trim is initialized (starting at 1)
             breakpoint: 640, // Width at which to (un)trim the table
-            lag: 200, // Lag variable in milliseconds to wait before triggering window.resize check
+            lag: 100, // Lag variable in milliseconds to wait before triggering window.resize check
         }
         // CSS classes
         var _classes = { 
@@ -32,6 +32,7 @@
             option: 'tabletrim-option',
             trimmed: 'tabletrim-trimmed',
             active: 'tabletrim-active',
+            sticky: 'tabletrim-sticky',
             breakpoints: 640
         }
         // State data
@@ -113,7 +114,6 @@
              * Check the window width and (un)trim the table as necessary
              */
             check: function() {
-                console.log('check');
                 if(_elements.window.width() > _options.breakpoint && _data.trimmed) _private.untrim();
                 if(_elements.window.width() <= _options.breakpoint && !_data.trimmed) _private.trim(_options.init);
             },
@@ -149,21 +149,28 @@
              */
             activate: function(i) {
                 // If there is an active column already, deactivate it
-                if(_data.activeindex != null) _private.deactivate();
-                // Update the active index
-                _data.activeindex = i;
-                // Add the controls
-                _private.addcontrols();
-                // Add the active class to all cells in the active column
-                _columns[i].allcells.addClass(_classes.active);
+                if(_data.activeindex != null) _private.deactivate();    
+                // If the column is the sticky column, just add sticky class
+                if(i == _options.sticky) {
+                    _columns[i].allcells.addClass(_classes.sticky);
+                } else {
+                    // Set the table direction depending on if the active column is before or after the sticky column
+                    (i > _options.sticky) 
+                        ? _elements.table.removeClass('tabletrim-rtl').addClass('tabletrim-ltr') 
+                        : _elements.table.removeClass('tabletrim-ltr').addClass('tabletrim-rtl');
+                    // Update the active index
+                    _data.activeindex = i;
+                    // Add the controls
+                    _private.addcontrols();
+                    // Add the active class to all cells in the active column
+                    _columns[i].allcells.addClass(_classes.active);
+                }
             },
 
             /**
              * Deactivate a table column
              */
             deactivate: function() {
-                // Don't allow deactivation of the sticky column
-                if(_data.activeindex == _options.sticky) return false;
                 // Remove the active class from the active column's cells
                 _columns[_data.activeindex].allcells.removeClass(_classes.active);
                 // Remove the controls from the active column header
