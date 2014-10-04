@@ -20,6 +20,13 @@
     return function(jq, opts) {
         // Options
         var _options = { 
+            select: true, // Show the dropdown select for columns
+            prev: true, // Show a button to switch to previous column
+            next: true, // Show a button to switch to next column
+            prevhtml: '&lsaquo;', // HTML to use for prev button
+            nexthtml: '&rsaquo;', // HTML to use for next button
+
+
             sticky: 1, // Column which should always be displayed (starting at 1)
             init: 2, // Initial column to show when trim is initialized (starting at 1)
             breakpoint: 640, // Width at which to (un)trim the table
@@ -30,8 +37,10 @@
             table: 'tabletrim',
             rtl: 'tabletrim-rtl',
             ltr: 'tabletrim-ltr',
+            controls: 'tabletrim-controls', 
+            prev: 'tabletrim-prev', 
+            next: 'tabletrim-next', 
             select: 'tabletrim-select', 
-            option: 'tabletrim-option',
             trimmed: 'tabletrim-trimmed',
             active: 'tabletrim-active',
             sticky: 'tabletrim-sticky',
@@ -41,7 +50,8 @@
         var _data = { 
             trimmed: false, 
             activeindex: null, 
-            timeout: null 
+            timeout: null,
+            columns: null
         }
         // Element references
         var _elements = {
@@ -80,8 +90,12 @@
             build: function() {
                 // Create an empty select box
                 _elements.select = $('<select class="' + _classes.select + '"></select');
+                // Create prev/next buttons
+                if(_options.prev) _elements.prev = $('<button class="' + _classes.prev + '">' + _options.prevhtml + '</button>');
+                if(_options.next) _elements.next = $('<button class="' + _classes.next + '">' + _options.nexthtml + '</button>');
                 // Loop all columns based on headers
                 _elements.table.find('thead th').each(function() {
+                    _data.columns = (_data.columns == null) ? 1 : _data.columns + 1;
                     // Build the columns array (1-indexed)
                     var index = $(this).index() + 1;
                     _columns[index] = {
@@ -93,13 +107,45 @@
                     }
                     // Add an option to the select box for this column (only if not the sticky column)
                     var disabled = (index == _options.sticky) ? ' disabled="disabled"' : '';
-                    $('<option value="' + index + '" class="' + _classes.option + '"' + disabled + '></option>').text(_columns[index].title).appendTo(_elements.select);                        
+                    $('<option value="' + index + '"' + disabled + '></option>').text(_columns[index].title).appendTo(_elements.select);                        
                 });
-                // Bind the select box action
-                _elements.select.on('change', function() {
-                    var index = $(this).find(':selected').val();
-                    _private.activate(index);
-                });
+                // Build controls
+                _elements.controls = $('<div class="' + _classes.controls + '"></div>');
+                if(_options.select) _elements.controls.append(_elements.select);
+                if(_options.prev) _elements.controls.append(_elements.prev);
+                if(_options.next) _elements.controls.append(_elements.next);
+
+                // Set activeindex
+                _data.activeindex = _options.init;
+                // Bind events
+                if(_options.select) {
+                    _elements.select.on('change', function() {
+                        var index = $(this).find(':selected').val();
+                        _private.activate(index);
+                    });                    
+                }
+                if(_options.prev) {
+                    _elements.prev.on('click', function(e) {
+                        e.preventDefault();
+                        _private.activate(_data.prev);
+                    });
+                }
+                if(_options.next) {
+                    _elements.next.on('click', function(e) {
+                        e.preventDefault();
+                        _private.activate(_data.next);
+                    });
+                }
+            },
+
+            /** 
+             * Helper function to set valid indexes for 'next' and 'prev'
+             */
+            setIndexes: function() {
+                nextdelta = (_data.activeindex + 1 == _options.sticky) ? 2 : 1;
+                prevdelta = (_data.activeindex - 1 == _options.sticky) ? 2 : 1;
+                _data.next = (_data.activeindex + nextdelta < _data.columns) ? _data.activeindex + nextdelta : 1;
+                _data.prev = (_data.activeindex - prevdelta > 0) ? _data.activeindex - prevdelta : _data.columns;
             },
 
             /**
@@ -150,8 +196,8 @@
              * Activate a table column and switch to it
              */
             activate: function(i) {
-                // If there is an active column already, deactivate it
-                if(_data.activeindex != null) _private.deactivate();    
+                // Deactivate the active column
+                _private.deactivate();    
                 // If the column is the sticky column, just add sticky class
                 if(i == _options.sticky) {
                     _columns[i].allcells.addClass(_classes.sticky);
@@ -161,12 +207,14 @@
                         ? _elements.table.removeClass(_classes.rtl).addClass(_classes.ltr) 
                         : _elements.table.removeClass(_classes.ltr).addClass(_classes.rtl);
                     // Update the active index
-                    _data.activeindex = i;
+                    _data.activeindex = parseInt(i);
                     // Add the controls
                     _private.addcontrols();
                     // Add the active class to all cells in the active column
                     _columns[i].allcells.addClass(_classes.active);
                 }
+                // Update indexes
+                _private.setIndexes();
             },
 
             /**
@@ -185,12 +233,15 @@
             addcontrols: function() {
                 // Don't add controls if it's the sticky column
                 if(_data.activeindex == _options.sticky) return false;
-                // Clone the select element (including events to ensure that the change event is in place)
-                var select = _elements.select.clone(true);
-                // Select the active option
-                select.find('option:nth-child(' + _data.activeindex + ')').attr('selected','selected');
-                // Remove the header cell title and replace it with the select box
-                _columns[_data.activeindex].headercell.empty().append(select);
+                // Add/setup necessary controls
+                if(_options.select) {
+                    _elements.select.find('option:selected').removeAttr('selected');
+                    _elements.select.find('option:nth-child(' + _data.activeindex + ')').attr('selected','selected');
+                }
+                // Clone the controls (including events to ensure that the change event is in place)
+                var controls = _elements.controls.clone(true);
+                // Remove the header cell title and replace it with the controls
+                _columns[_data.activeindex].headercell.empty().append(controls);
             },
 
             /** 
