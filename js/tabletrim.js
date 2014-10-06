@@ -144,7 +144,7 @@
             setIndexes: function() {
                 nextdelta = (_data.activeindex + 1 == _options.sticky) ? 2 : 1;
                 prevdelta = (_data.activeindex - 1 == _options.sticky) ? 2 : 1;
-                _data.next = (_data.activeindex + nextdelta < _data.columns) ? _data.activeindex + nextdelta : 1;
+                _data.next = (_data.activeindex + nextdelta <= _data.columns) ? _data.activeindex + nextdelta : 1;
                 _data.prev = (_data.activeindex - prevdelta > 0) ? _data.activeindex - prevdelta : _data.columns;
             },
 

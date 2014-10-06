@@ -1,2 +1,5 @@
 # Ignore the folder used for dev testing
 tests/
+node_modules/
+Gruntfile.js
+package.json
