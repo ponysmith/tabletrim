@@ -23,10 +23,10 @@
             select: true, // Show the dropdown select for columns
             prev: true, // Show a button to switch to previous column
             next: true, // Show a button to switch to next column
+            label: true, // Create a label for the select box
             prevhtml: '&lsaquo;', // HTML to use for prev button
             nexthtml: '&rsaquo;', // HTML to use for next button
-
-
+            labelhtml: 'Column: ', // HTML to use for the label
             sticky: 1, // Column which should always be displayed (starting at 1)
             init: 2, // Initial column to show when trim is initialized (starting at 1)
             breakpoint: 640, // Width at which to (un)trim the table
@@ -48,6 +48,7 @@
         }
         // State data
         var _data = { 
+            rootid: null,
             trimmed: false, 
             activeindex: null, 
             timeout: null,
@@ -74,7 +75,9 @@
                 // Capture elements
                 _elements.table = jq;
                 _elements.table.addClass(_classes.table);
-                // Build necessary arrays and 
+                // Set root id
+                _private.setId();
+                // Build necessary arrays and elements 
                 _private.build();
                 // Bind window resize
                 _elements.window.on('resize', _private.resize);
@@ -93,6 +96,11 @@
                 // Create prev/next buttons
                 if(_options.prev) _elements.prev = $('<button class="' + _classes.prev + '">' + _options.prevhtml + '</button>');
                 if(_options.next) _elements.next = $('<button class="' + _classes.next + '">' + _options.nexthtml + '</button>');
+                // Create and wire up the label
+                if(_options.label) {
+                    _elements.select.attr('id', 'tabletrim-select-' + _data.id);
+                    _elements.label = $('<label for="tabletrim-select-' + _data.id + '">' + _options.labelhtml + '</label>');
+                }
                 // Loop all columns based on headers
                 _elements.table.find('thead th').each(function() {
                     _data.columns = (_data.columns == null) ? 1 : _data.columns + 1;
@@ -114,7 +122,8 @@
                 if(_options.select) _elements.controls.append(_elements.select);
                 if(_options.prev) _elements.controls.append(_elements.prev);
                 if(_options.next) _elements.controls.append(_elements.next);
-
+                // Build label
+                if(_options.label) _elements.controls.prepend(_elements.label);
                 // Set activeindex
                 _data.activeindex = _options.init;
                 // Bind events
@@ -136,6 +145,15 @@
                         _private.activate(_data.next);
                     });
                 }
+            },
+
+            /** 
+             * Create a unique id
+             */
+            setId: function() {
+                _data.id = Math.random().toString(36).substr(2, 6);
+                if($('table[data-tabletrimid=' + _data.id + ']').length) _private.setId();
+                _elements.table.attr('data-tabletrimid', _data.id);
             },
 
             /** 
@@ -273,6 +291,7 @@
 
         }
 
+        // Initialize the plugin and return the public object
         return _private.init(jq, opts);
 
     }

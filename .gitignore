@@ -1,4 +1,3 @@
-# Ignore the folder used for dev testing
 tests/
 node_modules/
 npm-debug.log
