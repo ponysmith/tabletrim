@@ -31,6 +31,12 @@
             init: 2, // Initial column to show when trim is initialized (starting at 1)
             breakpoint: 640, // Width at which to (un)trim the table
             lag: 100, // Lag variable in milliseconds to wait before triggering window.resize check
+            // Callbacks
+            oninit: null,
+            ontrim: null,
+            onuntrim: null,
+            onactivate: null,
+            ondeactivate: null
         }
         // CSS classes
         var _classes = { 
@@ -81,6 +87,8 @@
                 _private.build();
                 // Bind window resize
                 _elements.window.on('resize', _private.resize);
+                // Call the oninit callback
+                if(typeof _options.oninit == 'function') _options.oninit(_elements.table);
                 // Do an initial check of the width
                 _private.check();
                 // Return the public object
@@ -190,6 +198,8 @@
             trim: function(i) {
                 // Add table class for CSS descendors
                 _elements.table.addClass(_classes.trimmed);
+                // Trigger the ontrim callback to make sure it happens before the onactivate callback
+                if(typeof _options.ontrim == 'function') _options.ontrim(_elements.table);
                 // Activate the sticky column
                 _private.activate(_options.sticky);
                 // Activate the selected column
@@ -204,8 +214,10 @@
             untrim: function() {
                 // Remove the table CSS class
                 _elements.table.removeClass(_classes.trimmed + ' ' + _classes.rtl + ' ' + _classes.ltr);
+                // Trigger the onuntrim callback to make sure it happens before the ondeactivate callback
+                if(typeof _options.onuntrim == 'function') _options.onuntrim(_elements.table);
                 // Deactivate the active column
-                _private.deactivate();
+                _private.deactivate(_elements.table);
                 // Set the trimmmed flag
                 _data.trimmed = false;
             },
@@ -214,12 +226,12 @@
              * Activate a table column and switch to it
              */
             activate: function(i) {
-                // Deactivate the active column
-                _private.deactivate();    
                 // If the column is the sticky column, just add sticky class
                 if(i == _options.sticky) {
                     _columns[i].allcells.addClass(_classes.sticky);
                 } else {
+                    // Deactivate the active column
+                    _private.deactivate();    
                     // Set the table direction depending on if the active column is before or after the sticky column
                     (i > _options.sticky) 
                         ? _elements.table.removeClass(_classes.rtl).addClass(_classes.ltr) 
@@ -230,6 +242,8 @@
                     _private.addcontrols();
                     // Add the active class to all cells in the active column
                     _columns[i].allcells.addClass(_classes.active);
+                    // Fire the onactivate callback
+                    if(typeof _options.onactivate == 'function' && i != _options.sticky) _options.onactivate(_columns[i]);
                 }
                 // Update indexes
                 _private.setIndexes();
@@ -243,6 +257,8 @@
                 _columns[_data.activeindex].allcells.removeClass(_classes.active);
                 // Remove the controls from the active column header
                 _private.removecontrols();
+                // Fire the ondeactivate callback
+                if(typeof _options.ondeactivate == 'function') _options.ondeactivate(_columns[_data.activeindex]);
             },
 
             /** 
