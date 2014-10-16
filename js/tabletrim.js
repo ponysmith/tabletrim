@@ -29,7 +29,7 @@
             labelhtml: 'Column: ', // HTML to use for the label
             sticky: 1, // Column which should always be displayed (starting at 1)
             init: 2, // Initial column to show when trim is initialized (starting at 1)
-            breakpoint: 768, // Width at which to (un)trim the table
+            breakpoint: 640, // Width at which to (un)trim the table
             lag: 100, // Lag variable in milliseconds to wait before triggering window.resize check
             // Callbacks
             oninit: null,
@@ -197,22 +197,28 @@
              * @param (int) i: Column to show upon initial trim
              */
             trim: function(i) {
+                // Return false if already trimmed
+                if(_data.trimmed) return false;
+                // If no index was passed, use the init index
+                if(typeof i == 'undefined') i = _options.init;
                 // Add table class for CSS descendors
                 _elements.table.addClass(_classes.trimmed);
                 // Trigger the ontrim callback to make sure it happens before the onactivate callback
                 if(typeof _options.ontrim == 'function') _options.ontrim(_elements.table);
+                // Set the trimmed flag
+                _data.trimmed = true;
                 // Activate the sticky column
                 _private.activate(_options.sticky);
                 // Activate the selected column
                 _private.activate(i);
-                // Set the trimmed flag
-                _data.trimmed = true;
             },
 
             /** 
              * Return the table to its default view
              */
             untrim: function() {
+                // Return false if table is not trimmed
+                if(!_data.trimmed) return false;
                 // Remove the table CSS class
                 _elements.table.removeClass(_classes.trimmed + ' ' + _classes.rtl + ' ' + _classes.ltr);
                 // Trigger the onuntrim callback to make sure it happens before the ondeactivate callback
@@ -227,6 +233,12 @@
              * Activate a table column and switch to it
              */
             activate: function(i) {
+                // If the table is not already trimmed, trim it and return false
+                // Trimming will re-call activate once the trim has finished
+                if(!_data.trimmed) {
+                    _private.trim(i);
+                    return;
+                }
                 // If the column is the sticky column, just add sticky class
                 if(i == _options.sticky) {
                     _columns[i].allcells.addClass(_classes.sticky);
@@ -304,6 +316,14 @@
              */
             untrim: function() {
                 _private.untrim();
+            },
+
+            /**
+             * Manually activate a column
+             * @param (integer) i: Index of the column to activate (starting at 1)
+             */
+            activate: function(i) {
+                _private.activate(i);
             },
 
         }
