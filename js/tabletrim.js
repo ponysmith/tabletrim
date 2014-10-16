@@ -244,7 +244,7 @@
                     // Add the active class to all cells in the active column
                     _columns[i].allcells.addClass(_classes.active);
                     // Fire the onactivate callback
-                    if(typeof _options.onactivate == 'function' && i != _options.sticky) _options.onactivate(_columns[i]);
+                    if(typeof _options.onactivate == 'function' && i != _options.sticky) _options.onactivate(_elements.table, _columns[i]);
                 }
                 // Update indexes
                 _private.setIndexes();
@@ -259,7 +259,7 @@
                 // Remove the controls from the active column header
                 _private.removecontrols();
                 // Fire the ondeactivate callback
-                if(typeof _options.ondeactivate == 'function') _options.ondeactivate(_columns[_data.activeindex]);
+                if(typeof _options.ondeactivate == 'function') _options.ondeactivate(_elements.table, _columns[_data.activeindex]);
             },
 
             /** 
