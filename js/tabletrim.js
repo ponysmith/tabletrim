@@ -21,15 +21,15 @@
         // Options
         var _options = { 
             select: true, // Show the dropdown select for columns
-            prev: true, // Show a button to switch to previous column
-            next: true, // Show a button to switch to next column
-            label: true, // Create a label for the select box
+            prev: false, // Show a button to switch to previous column
+            next: false, // Show a button to switch to next column
+            label: false, // Create a label for the select box
             prevhtml: '&lsaquo;', // HTML to use for prev button
             nexthtml: '&rsaquo;', // HTML to use for next button
             labelhtml: 'Column: ', // HTML to use for the label
             sticky: 1, // Column which should always be displayed (starting at 1)
             init: 2, // Initial column to show when trim is initialized (starting at 1)
-            breakpoint: 640, // Width at which to (un)trim the table
+            breakpoint: 768, // Width at which to (un)trim the table
             lag: 100, // Lag variable in milliseconds to wait before triggering window.resize check
             // Callbacks
             oninit: null,
@@ -188,12 +188,13 @@
              * Check the window width and (un)trim the table as necessary
              */
             check: function() {
-                if(_elements.window.width() > _options.breakpoint && _data.trimmed) _private.untrim();
-                if(_elements.window.width() <= _options.breakpoint && !_data.trimmed) _private.trim(_options.init);
+                if(_elements.table.width() > _options.breakpoint && _data.trimmed) _private.untrim();
+                if(_elements.table.width() <= _options.breakpoint && !_data.trimmed) _private.trim(_options.init);
             },
 
             /** 
              * Trim the table
+             * @param (int) i: Column to show upon initial trim
              */
             trim: function(i) {
                 // Add table class for CSS descendors
