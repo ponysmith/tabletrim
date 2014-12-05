@@ -50,7 +50,6 @@
             trimmed: 'tabletrim-trimmed',
             active: 'tabletrim-active',
             sticky: 'tabletrim-sticky',
-            breakpoints: 640
         }
         // State data
         var _data = { 
