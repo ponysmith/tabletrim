@@ -27,7 +27,7 @@
             prevhtml: '&lsaquo;', // HTML to use for prev button
             nexthtml: '&rsaquo;', // HTML to use for next button
             labelhtml: 'Column: ', // HTML to use for the label
-            sticky: 1, // Column which should always be displayed (starting at 1)
+            sticky: 1, // Column which should always be displayed (starting at 1), set 0 for no sticky column
             init: 2, // Initial column to show when trim is initialized (starting at 1)
             breakpoint: 640, // Width at which to (un)trim the table
             lag: 100, // Lag variable in milliseconds to wait before triggering window.resize check
@@ -121,7 +121,7 @@
                         bodycells: _elements.table.find('tbody tr th:nth-child(' + index + '), tbody tr td:nth-child(' + index + ')')
                     }
                     // Add an option to the select box for this column (only if not the sticky column)
-                    var disabled = (index == _options.sticky) ? ' disabled="disabled"' : '';
+                    var disabled = (_options.sticky > 0 && index == _options.sticky) ? ' disabled="disabled"' : '';
                     $('<option value="' + index + '"' + disabled + '></option>').text(_columns[index].title).appendTo(_elements.select);                        
                 });
                 // Build controls
@@ -207,7 +207,7 @@
                 // Set the trimmed flag
                 _data.trimmed = true;
                 // Activate the sticky column
-                _private.activate(_options.sticky);
+                if(_options.sticky > 0) _private.activate(_options.sticky);
                 // Activate the selected column
                 _private.activate(i);
             },
@@ -239,7 +239,7 @@
                     return;
                 }
                 // If the column is the sticky column, just add sticky class
-                if(i == _options.sticky) {
+                if(_options.sticky > 0 && i == _options.sticky) {
                     _columns[i].allcells.addClass(_classes.sticky);
                 } else {
                     // Deactivate the active column
