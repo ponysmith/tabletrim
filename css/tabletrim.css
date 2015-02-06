@@ -4,7 +4,12 @@
  */
 .tabletrim-ltr { direction: ltr; }
 .tabletrim-rtl { direction: rtl; }
-.tabletrim-controls { direction: ltr; }
+.tabletrim-controls { display: inline-block; direction: ltr; }
+.tabletrim-select,
+.tabletrim-title,
+.tabletrim-label,
+.tabletrim-prev,
+.tabletrim-next { display: inline-block; margin-right: 10px; }
 .tabletrim-trimmed td, .tabletrim-trimmed th { display: none; }
 .tabletrim-trimmed th.tabletrim-active,
 .tabletrim-trimmed td.tabletrim-active, 

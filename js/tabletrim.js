@@ -20,10 +20,7 @@
     return function(jq, opts) {
         // Options
         var _options = { 
-            select: true, // Show the dropdown select for columns
-            prev: false, // Show a button to switch to previous column
-            next: false, // Show a button to switch to next column
-            label: false, // Create a label for the select box
+            controls: ['select'], // Array of control elements ('select','title','label','prev','next') .. Created in the listed order
             prevhtml: '&lsaquo;', // HTML to use for prev button
             nexthtml: '&rsaquo;', // HTML to use for next button
             labelhtml: 'Column: ', // HTML to use for the label
@@ -44,6 +41,7 @@
             rtl: 'tabletrim-rtl',
             ltr: 'tabletrim-ltr',
             controls: 'tabletrim-controls', 
+            title: 'tabletrim-title',
             prev: 'tabletrim-prev', 
             next: 'tabletrim-next', 
             select: 'tabletrim-select', 
@@ -98,18 +96,11 @@
              * Build necessary elements and construct the columns array
              */
             build: function() {
-                // Create an empty select box
-                _elements.select = $('<select class="' + _classes.select + '"></select');
-                // Create prev/next buttons
-                if(_options.prev) _elements.prev = $('<button class="' + _classes.prev + '">' + _options.prevhtml + '</button>');
-                if(_options.next) _elements.next = $('<button class="' + _classes.next + '">' + _options.nexthtml + '</button>');
-                // Create and wire up the label
-                if(_options.label) {
-                    _elements.select.attr('id', 'tabletrim-select-' + _data.id);
-                    _elements.label = $('<label for="tabletrim-select-' + _data.id + '">' + _options.labelhtml + '</label>');
-                }
+                // Create a variable to store the options
+                _elements.options = [];
                 // Loop all columns based on headers
                 _elements.table.find('thead th').each(function() {
+                    // Increment the column
                     _data.columns = (_data.columns == null) ? 1 : _data.columns + 1;
                     // Build the columns array (1-indexed)
                     var index = $(this).index() + 1;
@@ -120,38 +111,53 @@
                         allcells:  _elements.table.find('tr th:nth-child(' + index + '), tr td:nth-child(' + index + ')'),
                         bodycells: _elements.table.find('tbody tr th:nth-child(' + index + '), tbody tr td:nth-child(' + index + ')')
                     }
-                    // Add an option to the select box for this column (only if not the sticky column)
+                    // Add an option for this column (add a "disabled" attribute if it's the sticky column)
                     var disabled = (_options.sticky > 0 && index == _options.sticky) ? ' disabled="disabled"' : '';
-                    $('<option value="' + index + '"' + disabled + '></option>').text(_columns[index].title).appendTo(_elements.select);                        
+                    _elements.options.push($('<option value="' + index + '"' + disabled + '>' + _columns[index].title + '</option>'));
                 });
-                // Build controls
-                _elements.controls = $('<div class="' + _classes.controls + '"></div>');
-                if(_options.select) _elements.controls.append(_elements.select);
-                if(_options.prev) _elements.controls.append(_elements.prev);
-                if(_options.next) _elements.controls.append(_elements.next);
-                // Build label
-                if(_options.label) _elements.controls.prepend(_elements.label);
+                // Build controls in order
+                if(typeof _options.controls == 'object') {
+                    // Build the controls container
+                    _elements.controls = $('<div class="' + _classes.controls + '"></div>');
+                    for(i=0; i<_options.controls.length; i++) {
+                        var c = _options.controls[i];
+                        switch(c) {
+                            case 'select': 
+                                _elements.select = $('<select class="' + _classes.select + '"></select')
+                                    .append(_elements.options)
+                                    .attr('id', 'tabletrim-select-' + _data.id);
+                                _elements.select.appendTo(_elements.controls);
+                                _elements.select.on('change', function() {
+                                    var index = $(this).find(':selected').val();
+                                    _private.activate(index);
+                                });                                
+                                break;
+                            case 'label':
+                                // _elements.select.attr('id', 'tabletrim-select-' + _data.id);
+                                _elements.label = $('<label for="tabletrim-select-' + _data.id + '">' + _options.labelhtml + '</label>').appendTo(_elements.controls);
+                                break;                            
+                            case 'title':
+                                _elements.title = $('<span class="' + _classes.title + '" />').appendTo(_elements.controls);
+                                break;                            
+                            case 'prev': 
+                                _elements.prev = $('<button class="' + _classes.prev + '">' + _options.prevhtml + '</button>').appendTo(_elements.controls);
+                                _elements.prev.on('click', function(e) {
+                                    e.preventDefault();
+                                    _private.activate(_data.prev);
+                                });
+                                break;
+                            case 'next': 
+                                _elements.next = $('<button class="' + _classes.next + '">' + _options.nexthtml + '</button>').appendTo(_elements.controls);
+                                _elements.next.on('click', function(e) {
+                                    e.preventDefault();
+                                    _private.activate(_data.next);
+                                });
+                                break;                            
+                        }
+                    }
+                }
                 // Set activeindex
                 _data.activeindex = _options.init;
-                // Bind events
-                if(_options.select) {
-                    _elements.select.on('change', function() {
-                        var index = $(this).find(':selected').val();
-                        _private.activate(index);
-                    });                    
-                }
-                if(_options.prev) {
-                    _elements.prev.on('click', function(e) {
-                        e.preventDefault();
-                        _private.activate(_data.prev);
-                    });
-                }
-                if(_options.next) {
-                    _elements.next.on('click', function(e) {
-                        e.preventDefault();
-                        _private.activate(_data.next);
-                    });
-                }
             },
 
             /** 
@@ -279,10 +285,14 @@
             addcontrols: function() {
                 // Don't add controls if it's the sticky column
                 if(_data.activeindex == _options.sticky) return false;
-                // Add/setup necessary controls
-                if(_options.select) {
+                // If we are using the select control, update the active option
+                if(_options.controls.indexOf('select') != -1) {
                     _elements.select.find('option:selected').removeAttr('selected');
                     _elements.select.find('option:nth-child(' + _data.activeindex + ')').attr('selected','selected');
+                }
+                // If we are using the title control, change the text
+                if(_options.controls.indexOf('title') != -1) {
+                    _elements.title.html(_columns[_data.activeindex].title);
                 }
                 // Clone the controls (including events to ensure that the change event is in place)
                 var controls = _elements.controls.clone(true);
