@@ -26,6 +26,6 @@ To instantiate a tabletrim object, call the `tabletrim()` function and pass in t
 
 Additional docs
 -----------------
-For additional documentation about tabletrim.js, visit:
+For additional documentation about tabletrim.js and a listing of options, visit:
 
 http://ponysmith.github.io/tabletrim
