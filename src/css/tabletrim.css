@@ -1,18 +1,17 @@
 /**
- * Core tabletrim.js styles
+ * Core tt.js styles
  * Alter at your own risk
  */
-.tabletrim-ltr { direction: ltr; }
-.tabletrim-rtl { direction: rtl; }
-.tabletrim-controls { display: inline-block; direction: ltr; }
-.tabletrim-select,
-.tabletrim-title,
-.tabletrim-label,
-.tabletrim-prev,
-.tabletrim-next { display: inline-block; margin-right: 10px; }
-.tabletrim-trimmed td, .tabletrim-trimmed th { display: none; }
-.tabletrim-trimmed th.tabletrim-active,
-.tabletrim-trimmed td.tabletrim-active, 
-.tabletrim-trimmed th.tabletrim-sticky,
-.tabletrim-trimmed td.tabletrim-sticky { display: table-cell; }
-
+.tt-ltr { direction: ltr; }
+.tt-rtl { direction: rtl; }
+.tt-controls { display: inline-block; direction: ltr; }
+.tt-select,
+.tt-title,
+.tt-label,
+.tt-prev,
+.tt-next { display: inline-block; margin-right: 10px; }
+.tt-trimmed td, .tt-trimmed th { display: none; }
+.tt-trimmed th.tt-active,
+.tt-trimmed td.tt-active,
+.tt-trimmed th.tt-sticky,
+.tt-trimmed td.tt-sticky { display: table-cell; }

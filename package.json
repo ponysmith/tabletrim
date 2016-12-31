@@ -4,6 +4,9 @@
     "type": "git",
     "url": "git://github.com/ponysmith/tabletrim.git"
   },
+  "scripts": {
+    "test": "karma start --single-run"
+  },
   "devDependencies": {
     "gulp": "^3.9.1",
     "gulp-clean-css": "^2.3.2",
