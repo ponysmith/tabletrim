@@ -1,31 +1,29 @@
-tabletrim
-=========
+# tabletrim
 
-tabletrim.js is a small Javascript utility for collapsing table columns and making them user-selectable
+[![CircleCI](https://circleci.com/gh/ponysmith/tabletrim.svg?style=svg)](https://circleci.com/gh/ponysmith/tabletrim)
 
-
-Dependencies
--------------
-tabletrim.js required jQuery 1.7+ to function
+**tabletrim.js** is a small Javascript utility for collapsing table columns and making them user-selectable
 
 
-Usage
--------------
-Once you have included the `tabletrim.js` and `tabletrim.css` files in your page, you can initialize the plugin by calling 
+## Dependencies
+None
+
+
+## Usage
+Once you have included the `tabletrim.js` and `tabletrim.css` files in your page, you can initialize the plugin by calling
 the `tabletrim()` function. The `tabletrim()` function takes two parameters:
 
-* obj (required): jQuery object(s) that you want the plugin to manipulate
+* table: DOM node representing the table
 * options (optional): Options object. For details about available options, see the Options page.
-While not a traditional jQuery plugin, tabletrim does rely on jQuery, so make sure you're calling the `tabletrim()` function within your `$(document).ready()` block.  
 
 To instantiate a tabletrim object, call the `tabletrim()` function and pass in the parameter(s):
 
-    var options = {}
-    tabletrim($('#mytable'), options);
+```
+var options = { init: 3 }
+tabletrim(document.getElementById('mytable'), options);
+```
 
-
-Additional docs
------------------
+## Additional docs
 For additional documentation about tabletrim.js and a listing of options, visit:
 
 http://ponysmith.github.io/tabletrim
