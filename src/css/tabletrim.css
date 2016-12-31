@@ -1,0 +1,17 @@
+/**
+ * Core tt.js styles
+ * Alter at your own risk
+ */
+.tt-ltr { direction: ltr; }
+.tt-rtl { direction: rtl; }
+.tt-controls { display: inline-block; direction: ltr; }
+.tt-select,
+.tt-title,
+.tt-label,
+.tt-prev,
+.tt-next { display: inline-block; margin-right: 10px; }
+.tt-trimmed td, .tt-trimmed th { display: none; }
+.tt-trimmed th.tt-active,
+.tt-trimmed td.tt-active,
+.tt-trimmed th.tt-sticky,
+.tt-trimmed td.tt-sticky { display: table-cell; }
